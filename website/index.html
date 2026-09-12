@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حفظ النعمة | منصة ذكية لإدارة فائض الغذاء والمخلفات العضوية</title>
+
+  <!-- Google Fonts: Cairo & Tajawal -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS (Play CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- ==========================================
+       Top Navigation Bar
+       ========================================== -->
+  <header class="sticky top-0 z-40 glass-nav shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- Logo & Project Identity (Using Official Uploaded Logo) -->
+        <div class="flex items-center gap-3.5 cursor-pointer" onclick="switchRole('overview')">
+          <div class="relative w-14 h-14 rounded-full overflow-hidden bg-white border-2 border-emerald-500 shadow-md shadow-emerald-700/25 flex-shrink-0 flex items-center justify-center p-1">
+            <img src="logo.png" alt="شعار منصة حفظ النعمة" class="w-full h-full object-contain">
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl font-black tracking-tight text-emerald-950">حفظ النعمة</span>
+              <span class="text-[11px] bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-0.5 rounded-full shadow-sm">اقتصاد دائري ذكي</span>
+            </div>
+            <p class="text-xs font-bold text-emerald-700">"نحفظ النعمة ... و نصنع منها قيمة"</p>
+          </div>
+        </div>
+
+        <!-- Role Switcher Pills -->
+        <nav class="hidden lg:flex items-center gap-1.5 bg-white/90 p-1.5 rounded-2xl border border-emerald-100 shadow-sm">
+          <button data-role="overview" class="role-pill active px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+            <i class="fas fa-earth-americas"></i>
+            <span>الرئيسية ونموذج العمل</span>
+          </button>
+          <button data-role="household" class="role-pill px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+            <i class="fas fa-house-chimney-user"></i>
+            <span>بوابة الأسر والجمهور</span>
+          </button>
+          <button data-role="center" class="role-pill px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+            <i class="fas fa-boxes-packing"></i>
+            <span>مركز التجميع والفرز</span>
+          </button>
+          <button data-role="business" class="role-pill px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+            <i class="fas fa-briefcase"></i>
+            <span>أصحاب المشروعات</span>
+          </button>
+          <button data-role="green-initiative" class="role-pill px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+            <i class="fas fa-award text-amber-400"></i>
+            <span>المبادرة الخضراء</span>
+          </button>
+        </nav>
+
+        <!-- Household Points Widget & Quick Action -->
+        <div class="flex items-center gap-3">
+          <div onclick="switchRole('household')" class="cursor-pointer bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3.5 py-1.5 rounded-2xl flex items-center gap-2 transition-all shadow-sm">
+            <i class="fas fa-coins text-amber-500 text-lg animate-bounce"></i>
+            <div class="text-right leading-tight">
+              <span class="text-[10px] text-emerald-800 font-bold block">رصيد نقاطك</span>
+              <span id="nav-wallet-points" class="text-sm font-black text-emerald-950">420</span>
+            </div>
+          </div>
+
+          <button onclick="openModal('donation-modal')" class="vibrant-cta-gradient text-white text-sm font-black px-4 py-2.5 rounded-xl shadow-lg shadow-amber-500/30 flex items-center gap-2 transition-all transform hover:scale-105">
+            <i class="fas fa-plus-circle text-base"></i>
+            <span>لدي فائض طعام</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Role Selector Bar -->
+      <div class="flex lg:hidden overflow-x-auto pb-2 pt-1 gap-1 border-t border-slate-200/60 no-scrollbar">
+        <button data-role="overview" class="role-pill active whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold">🌐 الرئيسية</button>
+        <button data-role="household" class="role-pill whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold">👨‍👩‍👧‍👦 الأسر والمجتمع</button>
+        <button data-role="center" class="role-pill whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold">🏭 مركز الفرز</button>
+        <button data-role="business" class="role-pill whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold">💼 المشروعات</button>
+        <button data-role="green-initiative" class="role-pill whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold">🏆 المبادرة الخضراء</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       MAIN CONTAINER & SECTIONS
+       ========================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- ========================================================
+         SECTION 1: OVERVIEW & CIRCULAR MODEL (نظرة عامة والنموذج)
+         ======================================================== -->
+    <section id="section-overview" class="space-y-12">
+      
+      <!-- Hero Banner With Artwork Integration -->
+      <div class="relative overflow-hidden rounded-3xl vibrant-hero-gradient text-white p-8 md:p-12 shadow-2xl">
+        <div class="hero-glow-vibrant"></div>
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2 bg-emerald-800/80 backdrop-blur border border-emerald-400/40 px-4 py-1.5 rounded-full text-xs font-black text-emerald-200 shadow-sm">
+              <i class="fas fa-leaf text-lime-400 animate-spin"></i>
+              منظومة الاقتصاد الدائري وإدارة المخلفات العضوية
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black leading-tight">
+              لا تهدر غذاء اليوم...<br>
+              <span class="text-lime-300 drop-shadow">فهو مورد وإنتاج الغد.</span>
+            </h1>
+            <p class="text-base md:text-lg text-emerald-100/95 leading-relaxed font-medium">
+              منصة ذكية تربط الأسر بوحدة فرز محلية صغيرة (20-30 م²)، لتحويل فائض الطعام والمخلفات العضوية من عبء بيئي إلى موارد اقتصادية تدعم مشروعات الشباب، وتمنح الأسر نقاط ومكافآت قيّمة وكاش فوري.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-3.5 pt-2">
+              <button onclick="switchRole('household'); openModal('donation-modal');" class="vibrant-cta-gradient text-white font-black px-6 py-3.5 rounded-2xl shadow-xl shadow-amber-500/40 flex items-center gap-2.5 transition-all transform hover:-translate-y-1 hover:shadow-2xl">
+                <i class="fas fa-hand-holding-heart text-xl"></i>
+                <span>طلب استلام فائض طعام</span>
+              </button>
+              <button onclick="switchRole('center')" class="bg-emerald-800/90 hover:bg-emerald-800 border border-emerald-400/50 text-white font-bold px-5 py-3.5 rounded-2xl flex items-center gap-2 transition-all hover:-translate-y-0.5">
+                <i class="fas fa-boxes-stacked text-lime-300"></i>
+                <span>لوحة تشغيل مركز الفرز</span>
+              </button>
+              <button onclick="switchRole('business')" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black px-5 py-3.5 rounded-2xl flex items-center gap-2 transition-all hover:-translate-y-0.5 shadow-md shadow-amber-400/20">
+                <i class="fas fa-cart-flatbed"></i>
+                <span>توريد للمشروعات</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Graphic Card with Floating Live Badges -->
+          <div class="lg:col-span-5 relative">
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/30 group">
+              <img src="hero_banner.jpg" alt="منصة حفظ النعمة - الحي المستدام" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-5">
+                <div>
+                  <span class="text-xs bg-lime-400 text-slate-950 font-black px-2.5 py-0.5 rounded-md">مجتمع مستدام 100%</span>
+                  <p class="text-sm font-bold text-white mt-1">من مائدة الأسرة إلى إنتاج المزارع والطاقة الخضراء</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating Badge 1 -->
+            <div class="absolute -top-3 -right-3 bg-white/95 backdrop-blur-md text-emerald-900 border border-emerald-300 px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-black animate-float">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <i class="fas fa-motorcycle text-emerald-600"></i>
+              مندوب فوري لباب البيت
+            </div>
+
+            <!-- Floating Badge 2 -->
+            <div class="absolute -bottom-3 -left-3 bg-white/95 backdrop-blur-md text-amber-900 border border-amber-300 px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-black animate-float-delayed">
+              <i class="fas fa-coins text-amber-500 text-base"></i>
+              كاش فوري ومكافآت لكل وجبة
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Live Quick Stats Counter Overlay -->
+        <div class="relative z-10 mt-10 pt-8 border-t border-emerald-600/60 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          <div>
+            <div id="nat-diverted-kg" class="text-2xl md:text-3xl font-black text-amber-300">1,475 كجم</div>
+            <div class="text-xs text-emerald-200 mt-1">فائض طعام تم إنقاذه</div>
+          </div>
+          <div>
+            <div id="nat-co2-tons" class="text-2xl md:text-3xl font-black text-white">3.68 طن</div>
+            <div class="text-xs text-emerald-200 mt-1">انبعاثات CO₂ تم تفاديها</div>
+          </div>
+          <div>
+            <div id="nat-families" class="text-2xl md:text-3xl font-black text-amber-300">142</div>
+            <div class="text-xs text-emerald-200 mt-1">أسرة مشاركة ونشطة</div>
+          </div>
+          <div>
+            <div id="nat-youth-jobs" class="text-2xl md:text-3xl font-black text-white">18</div>
+            <div class="text-xs text-emerald-200 mt-1">فرصة عمل خضراء للشباب</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Infographic & Concept Showcase -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="glass-panel p-5 rounded-3xl border border-slate-200 shadow-md overflow-hidden group">
+          <div class="rounded-2xl overflow-hidden mb-3 bg-slate-100 aspect-video flex items-center justify-center">
+            <img src="diagram_model.png" alt="منظومة إدارة وتدوير فائض الغذاء" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          </div>
+          <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+            <i class="fas fa-recycle text-emerald-600"></i> منظومة الاقتصاد الدائري لفائض الغذاء
+          </h4>
+          <p class="text-xs text-slate-500 mt-1">تتبع دورة حياة بقايا الطعام من التجميع حتى إعادة التوجيه والإنتاج</p>
+        </div>
+
+        <div class="glass-panel p-5 rounded-3xl border border-slate-200 shadow-md overflow-hidden group">
+          <div class="rounded-2xl overflow-hidden mb-3 bg-slate-100 aspect-video flex items-center justify-center">
+            <img src="diagram_streams.png" alt="محطة الفرز والتحويل الاقتصادي" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          </div>
+          <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+            <i class="fas fa-arrows-spin text-teal-600"></i> مسارات التدوير والقيمة المضافة
+          </h4>
+          <p class="text-xs text-slate-500 mt-1">تحويل الهادر إلى سماد، طاقة حيوية، وأعلاف آمنة ومستدامة</p>
+        </div>
+      </div>
+
+      <!-- The 5 Processing Streams of Circular Economy -->
+      <div class="space-y-6">
+        <div class="text-center max-w-2xl mx-auto space-y-2">
+          <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">سلسلة القيمة والفرز</span>
+          <h2 class="text-2xl md:text-3xl font-black text-slate-900">مسارات الاستفادة الـ 5 من فائض الطعام</h2>
+          <p class="text-sm text-slate-600">فرز وتوجيه احترافي داخل مركز التجميع حسب الاشتراطات الصحية والبيئية</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          
+          <!-- Stream 1 -->
+          <div class="stream-1 p-5 rounded-2xl border-2 hover-lift flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-blue-500 text-white flex items-center justify-center text-xl mb-3 shadow-md shadow-blue-500/20">
+                <i class="fas fa-snowflake"></i>
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider block mb-1">المسار الأول</span>
+              <h3 class="font-bold text-base text-blue-900 mb-2">ثلاجة الخير والاستهلاك الآدمي</h3>
+              <p class="text-xs text-blue-800/90 leading-relaxed">
+                الوجبات المطبوخة والمغلفة النظيفة التي لم تمس، لحفظها وتوزيعها فوراً على الأسر المحتاجة.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-blue-200 text-xs font-bold text-blue-900">
+              <i class="fas fa-hand-holding-heart ml-1"></i> تكافل مجتمعي مباشر
+            </div>
+          </div>
+
+          <!-- Stream 2 -->
+          <div class="stream-2 p-5 rounded-2xl border-2 hover-lift flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center text-xl mb-3 shadow-md shadow-amber-500/20">
+                <i class="fas fa-wheat-awn"></i>
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider block mb-1">المسار الثاني</span>
+              <h3 class="font-bold text-base text-amber-900 mb-2">أعلاف الدواجن والماشية</h3>
+              <p class="text-xs text-amber-800/90 leading-relaxed">
+                بقايا الحبوب والمخبوزات والخضار المناسبة لمشروعات تربية الدواجن والبط والأرانب وفق الاشتراطات البيطرية.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-amber-200 text-xs font-bold text-amber-900">
+              <i class="fas fa-egg ml-1"></i> خفض تكلفة التربية 40%
+            </div>
+          </div>
+
+          <!-- Stream 3 -->
+          <div class="stream-3 p-5 rounded-2xl border-2 hover-lift flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl mb-3 shadow-md shadow-emerald-600/20">
+                <i class="fas fa-spa"></i>
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider block mb-1">المسار الثالث</span>
+              <h3 class="font-bold text-base text-emerald-900 mb-2">الكمبوست والسماد العضوي</h3>
+              <p class="text-xs text-emerald-800/90 leading-relaxed">
+                قشور الخضار والفواكه ومخلفات المطبخ النباتية، لتحويلها إلى سماد عضوي غني للتربة والحدائق.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-emerald-200 text-xs font-bold text-emerald-900">
+              <i class="fas fa-seedling ml-1"></i> إنتاج زراعي مستدام
+            </div>
+          </div>
+
+          <!-- Stream 4 -->
+          <div class="stream-4 p-5 rounded-2xl border-2 hover-lift flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-purple-600 text-white flex items-center justify-center text-xl mb-3 shadow-md shadow-purple-600/20">
+                <i class="fas fa-fire-flame-curved"></i>
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider block mb-1">المسار الرابع</span>
+              <h3 class="font-bold text-base text-purple-900 mb-2">الغاز الحيوي (Biogas)</h3>
+              <p class="text-xs text-purple-800/90 leading-relaxed">
+                المخلفات العضوية الرطبة لتغذية هاضمات الغاز الحيوي لإنتاج طاقة نظيفة للطهي والتوليد.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-purple-200 text-xs font-bold text-purple-900">
+              <i class="fas fa-bolt ml-1"></i> طاقة متجددة ونظيفة
+            </div>
+          </div>
+
+          <!-- Stream 5 -->
+          <div class="stream-5 p-5 rounded-2xl border-2 hover-lift flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-pink-600 text-white flex items-center justify-center text-xl mb-3 shadow-md shadow-pink-600/20">
+                <i class="fas fa-bug"></i>
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider block mb-1">المسار الخامس</span>
+              <h3 class="font-bold text-base text-pink-900 mb-2">يرقات ذبابة الجندي الأسود</h3>
+              <p class="text-xs text-pink-800/90 leading-relaxed">
+                تربية اليرقات (BSFL) التي تلتهم المخلفات بسرعة فائقة وتنتج بروتين حيواني عالي القيمة للأعلاف.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-pink-200 text-xs font-bold text-pink-900">
+              <i class="fas fa-flask ml-1"></i> ابتكار بيوتكنولوجي
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Live Carbon & Eco Calculator Section -->
+      <div class="glass-panel p-6 md:p-8 rounded-3xl border border-slate-200/80 shadow-md">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <div class="lg:col-span-6 space-y-4">
+            <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
+              <i class="fas fa-calculator"></i>
+              حاسبة الأثر البيئي الفوري
+            </div>
+            <h3 class="text-2xl font-black text-slate-900">احسب أثر مساهمتك الإيجابي على الكوكب</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              كل كيلوجرام من بقايا الطعام تنقذه من القمامة يمنع انبعاثات الغازات الدفيئة ويوفر استهلاك المياه ويمنحك نقاطاً حصرية.
+            </p>
+
+            <div class="space-y-3 pt-2">
+              <div class="flex justify-between items-center text-sm font-bold text-slate-700">
+                <span>كمية الطعام المقدرة:</span>
+                <div class="flex items-center gap-2">
+                  <input type="number" id="calc-kg-input" min="1" max="500" value="15" class="w-20 px-2 py-1 text-center font-bold border border-emerald-300 rounded-lg text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                  <span class="text-slate-500 font-normal">كجم</span>
+                </div>
+              </div>
+              <input type="range" id="calc-kg-slider" min="1" max="200" value="15" class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+              <div class="flex justify-between text-[11px] text-slate-400 font-semibold">
+                <span>1 كجم</span>
+                <span>50 كجم</span>
+                <span>100 كجم</span>
+                <span>200 كجم</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 grid grid-cols-2 gap-4">
+            <div class="bg-emerald-50 border border-emerald-200/80 p-4 rounded-2xl text-center space-y-1">
+              <div class="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center mx-auto text-lg">
+                <i class="fas fa-cloud-arrow-down"></i>
+              </div>
+              <span class="text-xs text-emerald-800 font-medium block">تخفيض انبعاثات CO₂</span>
+              <span id="calc-res-co2" class="text-xl md:text-2xl font-black text-emerald-950">37.5 كجم</span>
+            </div>
+
+            <div class="bg-teal-50 border border-teal-200/80 p-4 rounded-2xl text-center space-y-1">
+              <div class="w-10 h-10 bg-teal-600 text-white rounded-xl flex items-center justify-center mx-auto text-lg">
+                <i class="fas fa-fire"></i>
+              </div>
+              <span class="text-xs text-teal-800 font-medium block">منع غاز الميثان (CH₄)</span>
+              <span id="calc-res-methane" class="text-xl md:text-2xl font-black text-teal-950">6.75 كجم</span>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200/80 p-4 rounded-2xl text-center space-y-1">
+              <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center mx-auto text-lg">
+                <i class="fas fa-droplet"></i>
+              </div>
+              <span class="text-xs text-blue-800 font-medium block">وفر البصمة المائية</span>
+              <span id="calc-res-water" class="text-xl md:text-2xl font-black text-blue-950">4,800 لتر</span>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200/80 p-4 rounded-2xl text-center space-y-1">
+              <div class="w-10 h-10 bg-amber-500 text-white rounded-xl flex items-center justify-center mx-auto text-lg">
+                <i class="fas fa-coins"></i>
+              </div>
+              <span class="text-xs text-amber-800 font-medium block">نقاط ومكافآت متوقعة</span>
+              <span id="calc-res-points" class="text-xl md:text-2xl font-black text-amber-950">+180 نقطة</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Interactive Map Section (ثلاجات الخير ونقاط التجميع) -->
+      <div class="glass-panel p-6 md:p-8 rounded-3xl border border-slate-200/80 shadow-md space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">
+              <i class="fas fa-map-location-dot"></i>
+              الخريطة التفاعلية الحية للحي
+            </div>
+            <h3 class="text-xl font-black text-slate-900 mt-1">مواقع ثلاجات الخير، مركز الفرز، والمتاجر الشريكة</h3>
+          </div>
+          <div class="flex items-center gap-3 text-xs font-bold">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-600"></span> مركز التجميع والفرز</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-600"></span> ثلاجة الخير</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span> شركاء الخصم</span>
+          </div>
+        </div>
+
+        <div id="map" class="shadow-inner border border-slate-300"></div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================
+         SECTION 2: HOUSEHOLD & COMMUNITY PORTAL (بوابة الأسر)
+         ======================================================== -->
+    <section id="section-household" class="hidden space-y-10">
+      
+      <!-- Household Header & Points Overview -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Action Callout -->
+        <div class="lg:col-span-7 bg-gradient-to-l from-emerald-700 to-teal-800 text-white p-7 rounded-3xl shadow-xl flex flex-col justify-between space-y-4">
+          <div>
+            <span class="text-xs font-bold bg-emerald-600/70 border border-emerald-400/40 px-3 py-1 rounded-full text-emerald-100">
+              👨‍👩‍👧‍👦 لوحة تحكم الأسرة
+            </span>
+            <h2 class="text-2xl md:text-3xl font-black mt-2">شارك في حفظ النعمة واكسب مكافآت وكاش فوري</h2>
+            <p class="text-sm text-emerald-100/90 mt-1">
+              قم بفرز الطعام من مطبخك، واطلب مندوب الاستلام لباب بيتك مع إشعار واتساب لحظي لمتابعة المندوب.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button onclick="openModal('donation-modal')" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black px-6 py-3 rounded-xl shadow-lg shadow-amber-400/30 flex items-center gap-2 transition-all">
+              <i class="fas fa-truck-ramp-box"></i>
+              <span>تسجيل طلب استلام جديد</span>
+            </button>
+            <a href="#cash-rewards-section" class="bg-white/15 hover:bg-white/25 text-white font-bold px-4 py-3 rounded-xl transition-all flex items-center gap-2">
+              <i class="fas fa-money-bill-wave text-amber-300"></i>
+              <span>تحويل النقاط لكاش وشحن</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Household Wallet Card -->
+        <div class="lg:col-span-5 glass-panel p-6 rounded-3xl border border-slate-200 shadow-md flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+              <i class="fas fa-wallet text-emerald-600"></i> محفظة نقاط وكاش الأسرة
+            </h3>
+            <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-lg">عضو بيئي نشط ⭐</span>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <div class="p-2.5 bg-amber-50 rounded-2xl border border-amber-200/60">
+              <span class="text-[10px] text-amber-800 font-semibold block">الرصيد الحالي</span>
+              <span id="user-wallet-points" class="text-xl font-black text-amber-600">420</span>
+              <span class="text-[10px] text-amber-700 block">نقطة</span>
+            </div>
+            <div class="p-2.5 bg-emerald-50 rounded-2xl border border-emerald-200/60">
+              <span class="text-[10px] text-emerald-800 font-semibold block">إجمالي الفائض</span>
+              <span id="user-wallet-kg" class="text-base font-black text-emerald-700">34.5 كجم</span>
+              <span class="text-[10px] text-emerald-600 block">تم إنقاذه</span>
+            </div>
+            <div class="p-2.5 bg-teal-50 rounded-2xl border border-teal-200/60">
+              <span class="text-[10px] text-teal-800 font-semibold block">وفر الكربون</span>
+              <span id="user-wallet-co2" class="text-base font-black text-teal-700">86.3 كجم</span>
+              <span class="text-[10px] text-teal-600 block">CO₂</span>
+            </div>
+            <div class="p-2.5 bg-blue-50 rounded-2xl border border-blue-200/60">
+              <span class="text-[10px] text-blue-800 font-semibold block">كاش مستبدل</span>
+              <span id="user-wallet-cash" class="text-base font-black text-blue-700">0 ج.م</span>
+              <span class="text-[10px] text-blue-600 block">أرباح كاش</span>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-500 leading-normal">
+            💡 <strong class="text-slate-700">نصيحة بيئية:</strong> الفرز النظيف والمحكم من المصدر يمنحك بونص <strong class="text-emerald-700">+30% نقاط إضافية</strong> عند الوزن داخل المركز!
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Cash Conversion & Mobile Wallet Rewards Section -->
+      <div id="cash-rewards-section" class="space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+          <div>
+            <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <i class="fas fa-money-bill-transfer text-emerald-600"></i> تحويل النقاط إلى كاش فوري ورصيد شحن
+            </h3>
+            <p class="text-xs text-slate-500">استبدل نقاطك فورياً بأموال كاش على فودافون كاش، إنستاباي InstaPay، أو كروت شحن</p>
+          </div>
+          <span class="text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1 rounded-xl">تحويل فوري في ثوانٍ</span>
+        </div>
+
+        <div id="cash-options-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Household Orders & Traceability -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <i class="fas fa-list-check text-emerald-600"></i> طلباتي وسجل التتبع والمندوب (Traceability)
+          </h3>
+          <span class="text-xs text-slate-500">تتبع مباشر لحالة المندوب ومسار الشحنة بالواتساب</span>
+        </div>
+
+        <div id="household-orders-list" class="space-y-3">
+          <!-- Dynamically Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Coupons & Discounts Store (متجر كوبونات الخصم للشركاء) -->
+      <div id="coupons-section" class="space-y-4 pt-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+          <div>
+            <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <i class="fas fa-store text-amber-500"></i> متجر قسائم وكوبونات الخصم الشريكة
+            </h3>
+            <p class="text-xs text-slate-500">استبدل نقاطك بكوبونات خصم فورية لدى السوبرماركت والمخابز ومتاجر الحي</p>
+          </div>
+          <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+            خصومات حصرية تبدأ من 120 نقطة
+          </span>
+        </div>
+
+        <div id="coupons-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <!-- Dynamically Populated by app.js -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================
+         SECTION 3: COLLECTION & SORTING CENTER PORTAL (مركز الفرز)
+         ======================================================== -->
+    <section id="section-center" class="hidden space-y-10">
+      
+      <!-- Operations Dashboard Banner -->
+      <div class="bg-slate-900 text-white p-7 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-500/30">
+            <i class="fas fa-warehouse"></i>
+            محطة الفرز والوزن الذكية (الوحدة المحلية 25 م²)
+          </div>
+          <h2 class="text-2xl md:text-3xl font-black mt-2">لوحة عمليات وإدارة وتوزيع المخلفات العضوية</h2>
+          <p class="text-xs text-slate-400 mt-1">تنسيق المناديب، فرز الشحنات المستلمة، وصرف المواد الخام لمشروعات الشباب</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button onclick="switchRole('green-initiative')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all">
+            <i class="fas fa-chart-pie"></i>
+            <span>مؤشرات المبادرة الخضراء</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Raw Material Stockpile Tracker (المخزون المفرز الجاهز) -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i class="fas fa-boxes-stacked text-emerald-600"></i> المخزون المفرز الجاهز لتوريد مشروعات الشباب
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div class="bg-white p-4 rounded-2xl border border-blue-200 shadow-sm">
+            <span class="text-[11px] font-semibold text-blue-600 block">ثلاجة الخير (استهلاك آدمي)</span>
+            <span id="inv-stream-1" class="text-2xl font-black text-blue-950 mt-1 block">45 كجم</span>
+            <span class="text-[10px] text-slate-400">جاهز للتوزيع الخيري</span>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-amber-200 shadow-sm">
+            <span class="text-[11px] font-semibold text-amber-600 block">مدخلات أعلاف الدواجن</span>
+            <span id="inv-stream-2" class="text-2xl font-black text-amber-950 mt-1 block">380 كجم</span>
+            <span class="text-[10px] text-slate-400">مخصص لمزارع الطيور</span>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-emerald-200 shadow-sm">
+            <span class="text-[11px] font-semibold text-emerald-600 block">ركائز إنتاج الكمبوست</span>
+            <span id="inv-stream-3" class="text-2xl font-black text-emerald-950 mt-1 block">620 كجم</span>
+            <span class="text-[10px] text-slate-400">مخصص للسماد العضوي</span>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-purple-200 shadow-sm">
+            <span class="text-[11px] font-semibold text-purple-600 block">كتلة الغاز الحيوي (Biogas)</span>
+            <span id="inv-stream-4" class="text-2xl font-black text-purple-950 mt-1 block">240 كجم</span>
+            <span class="text-[10px] text-slate-400">مخصص لوحدات الطاقة</span>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-pink-200 shadow-sm">
+            <span class="text-[11px] font-semibold text-pink-600 block">يرقات الجندي الأسود (BSF)</span>
+            <span id="inv-stream-5" class="text-2xl font-black text-pink-950 mt-1 block">190 كجم</span>
+            <span class="text-[10px] text-slate-400">إنتاج بروتين الأعلاف</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sorting & Weigh-in Station + Incoming Orders Queue -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Smart Weighing & Sorting Station (Form) -->
+        <div id="sorting-station-card" class="lg:col-span-5 glass-panel p-6 rounded-3xl border border-slate-200 shadow-md space-y-4">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <i class="fas fa-scale-balanced text-emerald-600"></i> محطة الوزن والفرز وتوزيع النقاط
+            </h3>
+            <p class="text-xs text-slate-500">وزن الشحنة وتوجيهها للمخزون وإرسال إشعار واتساب للأسرة</p>
+          </div>
+
+          <form id="sorting-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">اختر الشحنة المستلمة:</label>
+              <select id="sort-order-select" required class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
+                <option value="">-- جارٍ تحميل الطلبات المستلمة --</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">الوزن الفعلي بالمركز (كجم):</label>
+                <input type="number" id="sort-actual-kg" step="0.1" min="0.1" required placeholder="مثال: 5.5" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">درجة نقاوة الفرز:</label>
+                <select id="sort-purity-rate" class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-semibold">
+                  <option value="A">ممتازة (بونص +30% نقاط)</option>
+                  <option value="B">جيدة (بونص +10% نقاط)</option>
+                  <option value="C">عادية (النقاط الأساسية)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">المسار الموجه إليه:</label>
+              <select id="sort-stream-select" required class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-slate-800">
+                <option value="stream-1">1. ثلاجة الخير (صالح للاستهلاك الآدمي)</option>
+                <option value="stream-2">2. مسار أعلاف الدواجن والطيور</option>
+                <option value="stream-3" selected>3. مسار سماد الكمبوست العضوي</option>
+                <option value="stream-4">4. مسار وحدات الغاز الحيوي (Biogas)</option>
+                <option value="stream-5">5. مسار يرقات الجندي الأسود (BSFL)</option>
+              </select>
+            </div>
+
+            <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all">
+              <i class="fas fa-check-double"></i>
+              <span>اعتماد الوزن وتوجيه الشحنة للمخزون</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Incoming Requests Live Table (With Driver Assignment & Sync) -->
+        <div class="lg:col-span-7 glass-panel p-6 rounded-3xl border border-slate-200 shadow-md space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <i class="fas fa-truck text-emerald-600"></i> جدول طلبات التجميع ومتابعة المناديب الحية
+            </h3>
+            <span class="text-xs text-slate-400">تحديث فوري ومتصل</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-right border-collapse">
+              <thead>
+                <tr class="bg-slate-100/70 text-slate-600 text-xs font-bold border-b border-slate-200">
+                  <th class="py-2.5 px-4">رقم الطلب</th>
+                  <th class="py-2.5 px-4">الأسرة / الهاتف</th>
+                  <th class="py-2.5 px-4">العنوان والموعد</th>
+                  <th class="py-2.5 px-4">النوع والكمية</th>
+                  <th class="py-2.5 px-4">حالة المندوب</th>
+                  <th class="py-2.5 px-4 text-left">الإجراء المباشر</th>
+                </tr>
+              </thead>
+              <tbody id="center-orders-table">
+                <!-- Dynamically Populated by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Incoming Supply Orders from Business Entrepreneurs (الربط المباشر مع أصحاب المشروعات) -->
+      <div class="glass-panel p-6 rounded-3xl border border-amber-200 shadow-md space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <i class="fas fa-cart-flatbed text-amber-600"></i> طلبات توريد المشروعات الواردة (صرف المواد الخام)
+            </h3>
+            <p class="text-xs text-slate-500">موافقة وصرف شحنات المخلفات العضوية المفروزة لمزارع ومصانع الشباب</p>
+          </div>
+          <span class="text-xs bg-amber-100 text-amber-900 font-bold px-3 py-1 rounded-xl">ربط حي مع رواد الأعمال</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-right border-collapse">
+            <thead>
+              <tr class="bg-amber-50/70 text-amber-900 text-xs font-bold border-b border-amber-200">
+                <th class="py-2.5 px-4">رقم الطلب</th>
+                <th class="py-2.5 px-4">المشروع / المسؤول</th>
+                <th class="py-2.5 px-4">المادة الخام والكمية</th>
+                <th class="py-2.5 px-4">حالة الطلب</th>
+                <th class="py-2.5 px-4 text-left">الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="center-supply-table">
+              <!-- Dynamically Populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================
+         SECTION 4: BUSINESS & YOUTH ENTERPRISES PORTAL (المشروعات)
+         ======================================================== -->
+    <section id="section-business" class="hidden space-y-10">
+      
+      <!-- Business Portal Hero -->
+      <div class="bg-gradient-to-r from-amber-600 via-amber-700 to-emerald-800 text-white p-7 md:p-10 rounded-3xl shadow-xl space-y-4">
+        <div class="inline-flex items-center gap-2 bg-black/20 text-amber-200 text-xs font-bold px-3 py-1 rounded-full border border-white/20">
+          <i class="fas fa-chart-line"></i>
+          حاضنة المشروعات الخضراء وتمكين الشباب والمرأة
+        </div>
+        <h2 class="text-2xl md:text-4xl font-black">حوّل المخلفات العضوية إلى مشروعات مربحة ومستدامة</h2>
+        <p class="text-sm md:text-base text-amber-100 max-w-3xl leading-relaxed">
+          يوفر مركز "حفظ النعمة" لرواد الأعمال وأصحاب المشروعات الصغيرة مواد خام عضوية مفروزة عالية الجودة وبأقل تكلفة، لبدء وتوسيع مشروعات تربية الدواجن، إنتاج الكمبوست، وتوليد الطاقة الحيوية.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <button onclick="openModal('supply-modal')" class="bg-white text-slate-950 font-black px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 hover:bg-slate-100 transition-all">
+            <i class="fas fa-cart-flatbed"></i>
+            <span>طلب توريد مواد خام للمشروع</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Business Supply Orders Follow-up (طلبات التوريد السابقة) -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <i class="fas fa-boxes-packing text-amber-600"></i> طلبات التوريد الخاصة بمشروعي وحالتها في المركز
+          </h3>
+          <span class="text-xs text-slate-500">تحديث فوري عند صرف الشحنة بالمركز</span>
+        </div>
+
+        <div id="business-supply-list" class="space-y-3">
+          <!-- Dynamically Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Opportunities & Business Models Cards -->
+      <div class="space-y-4">
+        <h3 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+          <i class="fas fa-lightbulb text-amber-500"></i> نماذج مشروعات قابلة للتنفيذ السريع للشباب والمرأة
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          
+          <!-- Model 1 -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover-lift flex flex-col justify-between space-y-4">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl mb-3">
+                <i class="fas fa-egg"></i>
+              </div>
+              <h4 class="font-bold text-slate-800 text-base mb-1">مشروع تربية الدواجن والبط</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                استخدام بقايا الخبز والحبوب المفروزة كمدخلات أعلاف آمنة ومرخصة، مما يخفض تكلفة العلف بنسبة تصل إلى 40%.
+              </p>
+            </div>
+            <div class="text-xs bg-amber-50 p-2.5 rounded-xl text-amber-800 font-semibold">
+              📈 دورة إنتاج سريعة وهوامش ربح مجزية
+            </div>
+          </div>
+
+          <!-- Model 2 -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover-lift flex flex-col justify-between space-y-4">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl mb-3">
+                <i class="fas fa-seedling"></i>
+              </div>
+              <h4 class="font-bold text-slate-800 text-base mb-1">مشروع إنتاج سماد الكمبوست</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                تخمير وتدوير قشور الخضار والفواكه ومخلفات النباتات لإنتاج سماد عضوي عالي الجودة للحدائق والمشاتل الزراعية.
+              </p>
+            </div>
+            <div class="text-xs bg-emerald-50 p-2.5 rounded-xl text-emerald-800 font-semibold">
+              🌱 طلب متزايد من أصحاب الحدائق والمزارع
+            </div>
+          </div>
+
+          <!-- Model 3 -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover-lift flex flex-col justify-between space-y-4">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl mb-3">
+                <i class="fas fa-burn"></i>
+              </div>
+              <h4 class="font-bold text-slate-800 text-base mb-1">وحدات الغاز الحيوي المصغرة</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                إنشاء هاضمات منزلية ومحلية لإنتاج غاز طهي مجاني وسماد سائل ممتاز من خلال المخلفات العضوية الرطبة.
+              </p>
+            </div>
+            <div class="text-xs bg-purple-50 p-2.5 rounded-xl text-purple-800 font-semibold">
+              ⚡ توفير فوري في فواتير الطاقة والغاز
+            </div>
+          </div>
+
+          <!-- Model 4 -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover-lift flex flex-col justify-between space-y-4">
+            <div>
+              <div class="w-12 h-12 rounded-xl bg-pink-100 text-pink-700 flex items-center justify-center text-xl mb-3">
+                <i class="fas fa-vial"></i>
+              </div>
+              <h4 class="font-bold text-slate-800 text-base mb-1">مزرعة بروتين الجندي الأسود (BSF)</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                أحدث تقنية اقتصاد دائري لإنتاج مسحوق البروتين الحيواني عالي القيمة لتغذية الأسماك والدواجن بديل الصويا.
+              </p>
+            </div>
+            <div class="text-xs bg-pink-50 p-2.5 rounded-xl text-pink-800 font-semibold">
+              🔬 كفاءة تحويل غذائي تفوق 90%
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Health & Veterinary Safety Standards Checklist -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-200 shadow-md space-y-3">
+        <h4 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fas fa-shield-halved text-emerald-600"></i> دليل الاشتراطات الصحية والبيطرية المعتمدة بالمنصة
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-700">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <strong class="text-emerald-700 block mb-1">1. الفرز الصارم من المصدر:</strong>
+            منع اختلاط أي مواد غير عضوية (بلاستيك، زجاج، معادن) لضمان سلامة الحيوانات والتربة.
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <strong class="text-emerald-700 block mb-1">2. المعاملة الحرارية والتهوية:</strong>
+            تجفيف ومعاملة الأعلاف العضوية حرارياً وفق الإرشادات البيطرية لمنع التخمر الضار.
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <strong class="text-emerald-700 block mb-1">3. التتبع الكامل (Traceability):</strong>
+            كل دفعة مواد خام تحمل كوداً تعريفياً يحدد تاريخ الفرز ونوع المدخلات ومصدرها.
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================
+         SECTION 5: NATIONAL GREEN INITIATIVE DASHBOARD (المبادرة)
+         ======================================================== -->
+    <section id="section-green-initiative" class="hidden space-y-10">
+      
+      <!-- Official Dossier Header -->
+      <div class="bg-gradient-to-l from-emerald-900 via-teal-900 to-slate-900 text-white p-8 md:p-12 rounded-3xl shadow-2xl space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="inline-flex items-center gap-2 bg-amber-400 text-slate-950 text-xs font-black px-3.5 py-1 rounded-full shadow">
+            <i class="fas fa-trophy"></i>
+            ملف الترشح: المبادرة الوطنية للمشروعات الخضراء الذكية
+          </div>
+          <button onclick="printNationalDossier()" class="no-print bg-white/15 hover:bg-white/25 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all">
+            <i class="fas fa-print"></i>
+            <span>طباعة / تصدير التقرير الرسمي</span>
+          </button>
+        </div>
+
+        <h1 class="text-2xl md:text-4xl font-black">
+          مشروع حفظ النعمة: منصة ذكية لإدارة فائض الغذاء وفق مبادئ الاقتصاد الدائري
+        </h1>
+        <p class="text-sm md:text-base text-emerald-200 max-w-4xl leading-relaxed">
+          نموذج تنموي محلي قابل للتكرار والتوسع يدمج بين التحول الرقمي، الحوافز الاقتصادية للأسر، وتمكين الشباب والمرأة، مع خفض مباشر لانبعاثات الميثان بنسبة 100% من المخلفات المجمعة.
+        </p>
+
+        <!-- SDGs Alignment Badges -->
+        <div class="pt-2 flex flex-wrap items-center gap-2 text-xs font-bold">
+          <span class="bg-emerald-800/80 border border-emerald-400/40 px-3 py-1 rounded-lg text-emerald-200">الهدف 2: القضاء على الجوع</span>
+          <span class="bg-emerald-800/80 border border-emerald-400/40 px-3 py-1 rounded-lg text-emerald-200">الهدف 12: الاستهلاك والإنتاج المسؤول</span>
+          <span class="bg-emerald-800/80 border border-emerald-400/40 px-3 py-1 rounded-lg text-emerald-200">الهدف 13: العمل المناخي</span>
+          <span class="bg-emerald-800/80 border border-emerald-400/40 px-3 py-1 rounded-lg text-emerald-200">الهدف 8: العمل اللائق ونمو الاقتصاد</span>
+        </div>
+      </div>
+
+      <!-- Live Analytical Charts (Chart.js) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Monthly Salvage Volume & Business Supply -->
+        <div class="lg:col-span-7 glass-panel p-6 rounded-3xl border border-slate-200 shadow-md space-y-4">
+          <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+            <i class="fas fa-chart-column text-emerald-600"></i> كميات الفائض المجمع والمورد للمشروعات (شهرياً)
+          </h3>
+          <div class="h-64 relative">
+            <canvas id="monthlySalvageChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Stream Breakdown (Doughnut) -->
+        <div class="lg:col-span-5 glass-panel p-6 rounded-3xl border border-slate-200 shadow-md space-y-4">
+          <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+            <i class="fas fa-chart-pie text-emerald-600"></i> توزيع مخرجات الفرز حسب المسارات الـ 5
+          </h3>
+          <div class="h-64 relative">
+            <canvas id="streamDistributionChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Comprehensive Impact Matrix -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Environmental ROI -->
+        <div class="bg-emerald-900 text-white p-6 rounded-3xl shadow-md space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-700 flex items-center justify-center text-lg text-emerald-300">
+            <i class="fas fa-globe"></i>
+          </div>
+          <h4 class="font-bold text-lg text-emerald-200">الأثر البيئي والمناخي</h4>
+          <ul class="text-xs space-y-2 text-emerald-100/90 leading-relaxed list-disc list-inside">
+            <li>تقليل هدر الطعام من المصدر (المنازل والمنشآت).</li>
+            <li>تحويل 100% من المخلفات المجمعة عن مسار المدافن.</li>
+            <li>منع انبعاثات غاز الميثان الناتج عن تحلل المخلفات العضوية.</li>
+            <li>تعزيز إنتاج السماد العضوي كبديل للأسمدة الكيماوية.</li>
+          </ul>
+        </div>
+
+        <!-- Economic ROI -->
+        <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-md space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-lg text-amber-400">
+            <i class="fas fa-coins"></i>
+          </div>
+          <h4 class="font-bold text-lg text-amber-300">الأثر الاقتصادي وسلسلة القيمة</h4>
+          <ul class="text-xs space-y-2 text-slate-300 leading-relaxed list-disc list-inside">
+            <li>تحويل المخلفات من عبء تكلفة إلى مورد اقتصادي ذو قيمة.</li>
+            <li>توفير مواد خام منخفضة التكلفة لمشروعات الدواجن والأسمدة.</li>
+            <li>نظام حوافز للأسر يوفر خصومات وكاش فوري في المحافظ الذكية.</li>
+            <li>نموذج منخفض التكلفة التأسيسية قابل للتكرار في كل حي.</li>
+          </ul>
+        </div>
+
+        <!-- Social & Inclusion ROI -->
+        <div class="bg-teal-900 text-white p-6 rounded-3xl shadow-md space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-teal-800 flex items-center justify-center text-lg text-teal-300">
+            <i class="fas fa-users-rays"></i>
+          </div>
+          <h4 class="font-bold text-lg text-teal-200">الأثر الاجتماعي والتمكين</h4>
+          <ul class="text-xs space-y-2 text-teal-100/90 leading-relaxed list-disc list-inside">
+            <li>خلق فرص عمل لائقة للشباب في الجمع والنقل والفرز.</li>
+            <li>تمكين المرأة في إدارة المحطات والتسجيل وخدمة العملاء.</li>
+            <li>تنمية وعي الأطفال والمدارس عبر الأنشطة التوعوية والشارات الخضراء.</li>
+            <li>تعزيز روح التكافل والتضامن المجتمعي عبر ثلاجة الخير.</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==========================================
+       MODAL 1: DONATION REQUEST (لدي فائض طعام)
+       ========================================== -->
+  <div id="donation-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto space-y-5">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center text-lg">
+            <i class="fas fa-hand-holding-heart"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg text-slate-900">تسجيل طلب تسليم فائض طعام</h3>
+            <p class="text-xs text-slate-500">سنقوم بإسناد أقرب مندوب لاستلام الشحنة وإرسال إشعار واتساب</p>
+          </div>
+        </div>
+        <button onclick="closeModal('donation-modal')" class="text-slate-400 hover:text-slate-700 text-xl font-bold p-1">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="donation-form" class="space-y-4">
+        
+        <!-- Type Radio -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-2">حالة ونوع الفائض:</label>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <input type="radio" id="type-edible" name="don-type" value="صالح للاستهلاك الآدمي" class="custom-radio hidden">
+              <label for="type-edible" class="block p-3 text-center border-2 border-slate-200 rounded-xl cursor-pointer text-xs font-bold hover:border-emerald-500 transition-all">
+                <i class="fas fa-utensils text-blue-600 block text-lg mb-1"></i>
+                صالح للاستهلاك (ثلاجة الخير)
+              </label>
+            </div>
+            <div>
+              <input type="radio" id="type-waste" name="don-type" value="مخلفات عضوية للتدوير" checked class="custom-radio hidden">
+              <label for="type-waste" class="block p-3 text-center border-2 border-slate-200 rounded-xl cursor-pointer text-xs font-bold hover:border-emerald-500 transition-all">
+                <i class="fas fa-recycle text-emerald-600 block text-lg mb-1"></i>
+                مخلفات عضوية (للأعلاف والسماد)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">تصنيف الطعام بالتفصيل:</label>
+          <select id="don-category" class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
+            <option value="قشور خضروات وفواكه ومخلفات مطبخ">قشور خضروات وفواكه ومخلفات مطبخ نباتية</option>
+            <option value="بقايا خبز ومخبوزات وحبوب">بقايا خبز يابس ومخبوزات وحبوب</option>
+            <option value="وجبات مطبوخة ومغلفة نظيفة">وجبات مطبوخة ومغلفة نظيفة (استهلاك بشري)</option>
+            <option value="بقايا أرز ومكرونة وبقوليات">بقايا أرز ومكرونة وبقوليات</option>
+            <option value="مخلفات عضوية منوعة">مخلفات عضوية منوعة أخرى</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الكمية المقدرة (كجم):</label>
+            <input type="number" id="don-kg" min="0.5" max="500" step="0.5" value="3.5" required class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">موعد الاستلام المفضل:</label>
+            <select id="don-slot" class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
+              <option value="اليوم (4:00 م - 6:00 م)">اليوم (4:00 م - 6:00 م)</option>
+              <option value="اليوم (6:00 م - 8:00 م)">اليوم (6:00 م - 8:00 م)</option>
+              <option value="غداً (10:00 ص - 12:00 م)">غداً (10:00 ص - 12:00 م)</option>
+              <option value="غداً (4:00 م - 6:00 م)">غداً (4:00 م - 6:00 م)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">اسم الأسرة / المتبرع:</label>
+          <input type="text" id="don-name" placeholder="مثال: عائلة أحمد الشناوي" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف (لإشعارات واتساب):</label>
+            <input type="tel" id="don-phone" placeholder="010XXXXXXXX" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">العنوان بالتفصيل:</label>
+            <input type="text" id="don-address" required placeholder="العمارة / الشقة / الشارع" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ملاحظات إضافية (اختياري):</label>
+          <textarea id="don-notes" rows="2" placeholder="هل الطعام في أكياس مخصصة؟ أو أي تنبيه لمندوب الاستلام" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"></textarea>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all">
+            <i class="fas fa-paper-plane"></i>
+            <span>إرسال الطلب وحجز موعد المندوب</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 2: CASH REDEEM MODAL (تحويل كاش)
+       ========================================== -->
+  <div id="cash-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center text-lg">
+            <i class="fas fa-money-bill-transfer"></i>
+          </div>
+          <div>
+            <h3 id="cash-modal-title" class="font-bold text-base text-slate-900">تحويل كاش فوري</h3>
+            <p class="text-xs text-slate-500">استبدال <span id="cash-modal-cost" class="font-bold text-amber-600">200 نقطة</span> بـ <span id="cash-modal-amount" class="font-bold text-emerald-600">30 جنيه</span></p>
+          </div>
+        </div>
+        <button onclick="closeModal('cash-modal')" class="text-slate-400 hover:text-slate-700 text-xl font-bold">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="cash-redeem-form" class="space-y-4">
+        <input type="hidden" id="cash-opt-id" value="">
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">نوع المحفظة / طريقة الاستلام:</label>
+          <select id="cash-wallet-type" class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold text-slate-800">
+            <option value="فودافون كاش">فودافون كاش (Vodafone Cash)</option>
+            <option value="إنستاباي InstaPay">إنستاباي (InstaPay / حساب بنكي)</option>
+            <option value="أورنج كاش">أورنج كاش (Orange Cash)</option>
+            <option value="إي آند كاش">إي آند كاش (Etisalat Cash)</option>
+            <option value="شحن رصيد مباشر">شحن رصيد كارت فوري</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف / عنوان إنستاباي (IPA):</label>
+          <input type="text" id="cash-wallet-number" required placeholder="010XXXXXXXX أو name@instapay" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono font-bold">
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-xl shadow-md transition-all">
+          تأكيد التحويل واستلام الكاش
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3: WHATSAPP NOTIFICATION MODAL (إشعارات واتساب)
+       ========================================== -->
+  <div id="whatsapp-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+            <i class="fab fa-whatsapp"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-slate-900">إشعار واتساب التلقائي</h3>
+            <p class="text-xs text-slate-500">تم إرسال التنبيه للمشترك عبر واتساب</p>
+          </div>
+        </div>
+        <button onclick="closeModal('whatsapp-modal')" class="text-slate-400 hover:text-slate-700 text-xl font-bold">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-slate-800 text-sm space-y-2">
+        <div class="flex justify-between text-xs text-slate-500">
+          <span>المستلم: <strong id="wa-recipient" class="text-slate-800"></strong></span>
+          <span>المرجع: <strong id="wa-reference" class="text-emerald-700 font-mono"></strong></span>
+        </div>
+        <div class="p-3 bg-white rounded-xl shadow-sm border border-emerald-100">
+          <p id="wa-message" class="text-xs leading-relaxed text-slate-700 whitespace-pre-line"></p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <a id="wa-direct-link" target="_blank" class="btn-whatsapp flex-1 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 text-center">
+          <i class="fab fa-whatsapp text-base"></i> فتح المحادثة على واتساب
+        </a>
+        <button onclick="closeModal('whatsapp-modal')" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">
+          إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 4: COUPON VIEW / BARCODE
+       ========================================== -->
+  <div id="coupon-view-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-end">
+        <button onclick="closeModal('coupon-view-modal')" class="text-slate-400 hover:text-slate-700 text-xl font-bold">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="coupon-modal-details">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <button onclick="closeModal('coupon-view-modal')" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">
+        إغلاق
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 5: SUPPLY REQUEST (أصحاب المشروعات)
+       ========================================== -->
+  <div id="supply-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl space-y-4">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-lg">
+            <i class="fas fa-cart-flatbed"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg text-slate-900">طلب توريد مواد خام عضوية</h3>
+            <p class="text-xs text-slate-500">حجز شحنة من مخزون مركز الفرز المحلي</p>
+          </div>
+        </div>
+        <button onclick="closeModal('supply-modal')" class="text-slate-400 hover:text-slate-700 text-xl font-bold">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="supply-request-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">اسم المشروع / المزرعة:</label>
+          <input type="text" id="sup-proj-name" required placeholder="مثال: مزرعة النور للإنتاج الداجني" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">اسم رائد الأعمال / المسؤول:</label>
+          <input type="text" id="sup-owner-name" required placeholder="مثال: م. أحمد ممدوح" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">نوع المادة الخام المطلوبة:</label>
+          <select id="sup-stream" class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-semibold">
+            <option data-stream-key="stream2" value="مدخلات أعلاف الدواجن والطيور">مدخلات أعلاف الدواجن والطيور (حبوب ومخبوزات)</option>
+            <option data-stream-key="stream3" value="المادة الخام لإنتاج الكمبوست">المادة الخام لإنتاج الكمبوست (قشور ومخلفات نباتية)</option>
+            <option data-stream-key="stream4" value="الكتلة العضوية للغاز الحيوي">الكتلة العضوية الرطبة للغاز الحيوي</option>
+            <option data-stream-key="stream5" value="ركائز يرقات الجندي الأسود (BSF)">ركائز تربية يرقات الجندي الأسود (BSF)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الكمية المطلوبة (كجم):</label>
+            <input type="number" id="sup-amount" min="10" max="2000" value="50" required class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-bold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف (لواتساب):</label>
+            <input type="tel" id="sup-phone" required placeholder="01XXXXXXXXX" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ملاحظات التوريد والتسليم:</label>
+          <textarea id="sup-notes" rows="2" placeholder="مثال: توريد أسبوعي دوري أو موعد النقل المفضل" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-sm rounded-xl shadow-md transition-all">
+          إرسال طلب التوريد لمركز الفرز
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       FOOTER
+       ========================================== -->
+  <footer class="mt-20 border-t border-slate-200 bg-white/90 backdrop-blur py-10 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+      <div class="flex items-center justify-center gap-2.5">
+        <div class="w-10 h-10 rounded-full overflow-hidden bg-white border-2 border-emerald-500 shadow-sm flex items-center justify-center p-0.5">
+          <img src="logo.png" alt="شعار منصة حفظ النعمة" class="w-full h-full object-contain">
+        </div>
+        <span class="font-black text-xl text-emerald-950">منصة حفظ النعمة</span>
+      </div>
+      <p class="text-xs text-slate-500 max-w-xl mx-auto font-medium">
+        مشروع مجتمعي ذكي لإدارة فائض الغذاء والمخلفات العضوية وفق مبادئ الاقتصاد الدائري والتنمية المستدامة.
+      </p>
+      <p class="text-[11px] text-emerald-800 font-bold">
+        "نحفظ النعمة ... و نصنع منها قيمة" | جميع الحقوق محفوظة © 2026 - المبادرة الوطنية للمشروعات الخضراء الذكية
+      </p>
+    </div>
+  </footer>
+
+  <!-- Application Logic JS -->
+  <script src="app.js"></script>
+</body>
+</html>

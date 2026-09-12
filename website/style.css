@@ -1,0 +1,307 @@
+/* ==========================================================================
+   منصة حفظ النعمة - ثيم فائق الحيوية والجاذبية (Ultra-Vibrant Eco-Modern Theme)
+   "نحفظ النعمة ... و نصنع منها قيمة"
+   ========================================================================== */
+
+:root {
+  --primary-50: #f0fdf4;
+  --primary-100: #dcfce7;
+  --primary-200: #bbf7d0;
+  --primary-300: #86efac;
+  --primary-400: #4ade80;
+  --primary-500: #22c55e;
+  --primary-600: #16a34a;
+  --primary-700: #15803d;
+  --primary-800: #166534;
+  --primary-900: #14532d;
+  
+  --lime-400: #a3e635;
+  --lime-500: #84cc16;
+  --lime-600: #65a30d;
+
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+
+  --orange-500: #f97316;
+  --orange-600: #ea580c;
+
+  --sky-500: #0ea5e9;
+  --sky-600: #0284c7;
+
+  --surface-bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border-color: #e2e8f0;
+}
+
+* {
+  font-family: 'Cairo', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  direction: rtl;
+  text-align: right;
+  background-color: #f1f5f9;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(34, 197, 94, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(14, 165, 233, 0.04) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Vibrant Gradients */
+.vibrant-hero-gradient {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 55%, #059669 80%, #0d9488 100%);
+}
+
+.vibrant-cta-gradient {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+}
+
+.vibrant-card-gradient {
+  background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
+}
+
+.vibrant-gold-gradient {
+  background: linear-gradient(135deg, #fef08a 0%, #fde047 50%, #eab308 100%);
+}
+
+/* Glassmorphism & High-End Shadows */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.08);
+}
+
+.hero-glow-vibrant {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.22) 0%, rgba(245, 158, 11, 0.12) 40%, rgba(255, 255, 255, 0) 70%);
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Smooth Navigation Tabs & Roles */
+.role-pill {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.role-pill.active {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
+  transform: translateY(-2px);
+}
+
+.role-pill:not(.active):hover {
+  background-color: #dcfce7;
+  color: #14532d;
+}
+
+/* Card Hover Animations */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 25px 35px -5px rgba(16, 185, 129, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* 5 Circular Economy Stream Styling */
+.stream-1 { 
+  border: 2px solid #60a5fa; 
+  background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%); 
+  color: #1e40af; 
+}
+.stream-2 { 
+  border: 2px solid #fbbf24; 
+  background: linear-gradient(145deg, #ffffff 0%, #fffbeb 100%); 
+  color: #92400e; 
+}
+.stream-3 { 
+  border: 2px solid #34d399; 
+  background: linear-gradient(145deg, #ffffff 0%, #ecfdf5 100%); 
+  color: #065f46; 
+}
+.stream-4 { 
+  border: 2px solid #c084fc; 
+  background: linear-gradient(145deg, #ffffff 0%, #faf5ff 100%); 
+  color: #6b21a8; 
+}
+.stream-5 { 
+  border: 2px solid #f472b6; 
+  background: linear-gradient(145deg, #ffffff 0%, #fdf2f8 100%); 
+  color: #9d174d; 
+}
+
+/* Interactive Map Styling */
+#map {
+  width: 100%;
+  height: 440px;
+  border-radius: 1.25rem;
+  z-index: 10;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a7f3d0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #34d399;
+}
+
+/* Custom Radio / Select Elements */
+.custom-radio:checked + label {
+  border-color: #059669;
+  background-color: #ecfdf5;
+  color: #064e3b;
+  box-shadow: 0 0 0 2px #34d399;
+}
+
+/* Coupon Card Styling */
+.coupon-card {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px dashed #cbd5e1;
+  transition: all 0.3s ease;
+}
+
+.coupon-card:hover {
+  border-color: #10b981;
+  box-shadow: 0 12px 24px -5px rgba(16, 185, 129, 0.15);
+}
+
+.coupon-card::before, .coupon-card::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid #e2e8f0;
+}
+
+.coupon-card::before { left: -11px; }
+.coupon-card::after { right: -11px; }
+
+/* Status Badges */
+.badge-pending { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-assigned { background-color: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+.badge-collected { background-color: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+.badge-sorted { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+.badge-completed { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+
+/* WhatsApp Button */
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #ffffff;
+  transition: all 0.25s ease;
+}
+.btn-whatsapp:hover {
+  background: linear-gradient(135deg, #1ebd56 0%, #0d6e63 100%);
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Cash Conversion Cards */
+.cash-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1px solid #d1fae5;
+  transition: all 0.3s ease;
+}
+.cash-card:hover {
+  border-color: #10b981;
+  box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.2);
+  transform: translateY(-4px);
+}
+
+/* Driver Status Indicator */
+.driver-pill {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 9999px;
+  font-size: 11px;
+  padding: 2px 10px;
+  font-weight: 700;
+}
+
+/* Pulsing Badge & Floating Tags */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float {
+  animation: floatSlow 3.5s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatSlow 3.5s ease-in-out 1.75s infinite;
+}
+
+/* Modal Backdrop Animations */
+.modal-backdrop {
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.3s ease;
+}
+
+/* Print Styling for National Green Initiative Report */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+  
+  .glass-panel {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    background: #fff !important;
+  }
+}
